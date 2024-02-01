@@ -88,6 +88,89 @@ module.exports =
 /************************************************************************/
 /******/ ({
 
+/***/ "./src/controllers/subRedditController.js":
+/*!************************************************!*\
+  !*** ./src/controllers/subRedditController.js ***!
+  \************************************************/
+/*! exports provided: createSubReddit, getAllSubReddits, getsubRedditById, deleteSubreddit */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createSubReddit", function() { return createSubReddit; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getAllSubReddits", function() { return getAllSubReddits; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getsubRedditById", function() { return getsubRedditById; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deleteSubreddit", function() { return deleteSubreddit; });
+/* harmony import */ var _models_subRedditModel__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../models/subRedditModel */ "./src/models/subRedditModel.js");
+
+const createSubReddit = async (req, res) => {
+  const {
+    title,
+    description
+  } = req.body;
+  try {
+    const newSubReddit = await new _models_subRedditModel__WEBPACK_IMPORTED_MODULE_0__["default"]({
+      title,
+      description
+    });
+    newSubReddit.save();
+    res.json(newSubReddit);
+  } catch (error) {
+    res.json({
+      error: error.message
+    });
+  }
+};
+const getAllSubReddits = async (req, res) => {
+  try {
+    const allSubReddits = await _models_subRedditModel__WEBPACK_IMPORTED_MODULE_0__["default"].find();
+    res.json(allSubReddits);
+  } catch (error) {
+    res.json({
+      error: error.message
+    });
+  }
+};
+const getsubRedditById = async (req, res) => {
+  try {
+    const oneSubreddit = await _models_subRedditModel__WEBPACK_IMPORTED_MODULE_0__["default"].findById(req.params.id);
+    if (!oneSubreddit) {
+      res.json({
+        message: " subreddit not found !"
+      });
+    }
+    res.json(oneSubreddit);
+  } catch (error) {
+    res.json({
+      error: error.message
+    });
+  }
+};
+const deleteSubreddit = async (req, res) => {
+  const {
+    id
+  } = req.params;
+  try {
+    const deleteSubreddit = await _models_subRedditModel__WEBPACK_IMPORTED_MODULE_0__["default"].findOneAndDelete(id);
+    if (!deleteSubreddit) {
+      return res.json({
+        error: "Subreddit pas trouvé"
+      });
+    }
+    // res.json(deleteSubreddit);
+    res.json({
+      message: "Subreddit deleted successfully"
+    });
+  } catch (error) {
+    res.json({
+      error: error.message
+    });
+  }
+};
+
+
+/***/ }),
+
 /***/ "./src/controllers/userController.js":
 /*!*******************************************!*\
   !*** ./src/controllers/userController.js ***!
@@ -160,6 +243,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! mongoose */ "mongoose");
 /* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _routes_userRoutes__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./routes/userRoutes */ "./src/routes/userRoutes.js");
+/* harmony import */ var _routes_subRedditRoutes__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./routes/subRedditRoutes */ "./src/routes/subRedditRoutes.js");
+
 
 
 
@@ -181,7 +266,33 @@ app.use(express__WEBPACK_IMPORTED_MODULE_0___default.a.urlencoded({
 }));
 app.get("/", (req, res) => res.send("SALUT HAKIM DADDY MICHELIN"));
 app.use("/auth", _routes_userRoutes__WEBPACK_IMPORTED_MODULE_4__["default"]);
+app.use("/subreddit", _routes_subRedditRoutes__WEBPACK_IMPORTED_MODULE_5__["default"]);
 app.listen(port, () => console.log(`[SERVER] listening at http://localhost:${port}`));
+
+/***/ }),
+
+/***/ "./src/models/subRedditModel.js":
+/*!**************************************!*\
+  !*** ./src/models/subRedditModel.js ***!
+  \**************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mongoose */ "mongoose");
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_0__);
+
+const subRedditSchema = new mongoose__WEBPACK_IMPORTED_MODULE_0__["Schema"]({
+  title: String,
+  description: String,
+  posts: [{
+    type: mongoose__WEBPACK_IMPORTED_MODULE_0__["Schema"].Types.ObjectId,
+    ref: "Post"
+  }]
+});
+const SubReddit = mongoose__WEBPACK_IMPORTED_MODULE_0__["mongoose"].model("SubReddit", subRedditSchema);
+/* harmony default export */ __webpack_exports__["default"] = (SubReddit);
 
 /***/ }),
 
@@ -224,6 +335,26 @@ userSchema.methods.validPassword = async (applicantPassword, oldPassword) => {
 };
 const User = mongoose__WEBPACK_IMPORTED_MODULE_0___default.a.model("User", userSchema);
 /* harmony default export */ __webpack_exports__["default"] = (User);
+
+/***/ }),
+
+/***/ "./src/routes/subRedditRoutes.js":
+/*!***************************************!*\
+  !*** ./src/routes/subRedditRoutes.js ***!
+  \***************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _controllers_subRedditController__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../controllers/subRedditController */ "./src/controllers/subRedditController.js");
+
+const subRedditRouter = __webpack_require__(/*! express */ "express").Router();
+subRedditRouter.post("/newSubReddit", _controllers_subRedditController__WEBPACK_IMPORTED_MODULE_0__["createSubReddit"]);
+subRedditRouter.get("/allSubReddits", _controllers_subRedditController__WEBPACK_IMPORTED_MODULE_0__["getAllSubReddits"]);
+subRedditRouter.get("/:id", _controllers_subRedditController__WEBPACK_IMPORTED_MODULE_0__["getsubRedditById"]);
+subRedditRouter.delete("/:id/clean", _controllers_subRedditController__WEBPACK_IMPORTED_MODULE_0__["deleteSubreddit"]);
+/* harmony default export */ __webpack_exports__["default"] = (subRedditRouter);
 
 /***/ }),
 
