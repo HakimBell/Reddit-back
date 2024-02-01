@@ -1,0 +1,11 @@
+Reddit-back :
+    Installer les dependances:
+      ✔ install Express 
+      ✔ install .env
+      ✔ install mongoose  
+      ✔ install backpack 
+    ✔ mettre la config de mongoose et .env & .babelrc
+    creation du userModel:
+      ☐ faire le Schema d'un User
+      ☐ faire la route ascocié aux users
+      ☐ faire le controller
