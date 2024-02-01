@@ -92,14 +92,17 @@ module.exports =
 /*!*******************************************!*\
   !*** ./src/controllers/postController.js ***!
   \*******************************************/
-/*! exports provided: createPost, getAllPost */
+/*! exports provided: createPost, getAllPost, addPostSubreddit */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createPost", function() { return createPost; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getAllPost", function() { return getAllPost; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addPostSubreddit", function() { return addPostSubreddit; });
 /* harmony import */ var _models_postModel__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../models/postModel */ "./src/models/postModel.js");
+/* harmony import */ var _models_subRedditModel__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../models/subRedditModel */ "./src/models/subRedditModel.js");
+
 
 const createPost = async (req, res) => {
   try {
@@ -123,6 +126,17 @@ const getAllPost = async (req, res) => {
     const allPosts = await _models_postModel__WEBPACK_IMPORTED_MODULE_0__["default"].find();
     res.json(allPosts);
     res.json("Voici tous les posts ");
+  } catch (error) {
+    res.json(error.message);
+  }
+};
+const addPostSubreddit = async (req, res) => {
+  try {
+    const newPost = await _models_postModel__WEBPACK_IMPORTED_MODULE_0__["default"].findById(req.params.id_post);
+    const subReddit = await _models_subRedditModel__WEBPACK_IMPORTED_MODULE_1__["default"].findById(req.params.id_subreddit);
+    subReddit.posts.push(newPost);
+    subReddit.save();
+    res.json(subReddit);
   } catch (error) {
     res.json(error.message);
   }
@@ -427,6 +441,7 @@ __webpack_require__.r(__webpack_exports__);
 const postRouter = __webpack_require__(/*! express */ "express").Router();
 postRouter.post("/submitpost", _controllers_postController__WEBPACK_IMPORTED_MODULE_0__["createPost"]);
 postRouter.post("/allPosts", _controllers_postController__WEBPACK_IMPORTED_MODULE_0__["getAllPost"]);
+postRouter.post("/:id_subreddit/addpostsubreddit/:id_post", _controllers_postController__WEBPACK_IMPORTED_MODULE_0__["addPostSubreddit"]);
 /* harmony default export */ __webpack_exports__["default"] = (postRouter);
 
 /***/ }),

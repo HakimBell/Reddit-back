@@ -1,4 +1,5 @@
 import Post from "../models/postModel";
+import SubReddit from "../models/subRedditModel";
 
 const createPost = async (req, res) => {
   try {
@@ -21,4 +22,18 @@ const getAllPost = async (req, res) => {
     res.json(error.message);
   }
 };
-export { createPost, getAllPost };
+
+const addPostSubreddit = async (req, res) => {
+  try {
+    const newPost = await Post.findById(req.params.id_post);
+
+    const subReddit = await SubReddit.findById(req.params.id_subreddit);
+
+    subReddit.posts.push(newPost);
+    subReddit.save();
+    res.json(subReddit);
+  } catch (error) {
+    res.json(error.message);
+  }
+};
+export { createPost, getAllPost, addPostSubreddit };
