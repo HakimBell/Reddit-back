@@ -23,6 +23,18 @@ const getAllPost = async (req, res) => {
   }
 };
 
+const deletePost = async (req, res) => {
+  try {
+    const deletePost = await Post.findByIdAndDelete(req.params.id);
+    if (!deletePost) {
+      res.json({ message: "Post not found" });
+    }
+    res.json({ message: "Post deleted" });
+  } catch (error) {
+    res.json({ error: error.message });
+  }
+};
+
 const addPostSubreddit = async (req, res) => {
   try {
     const newPost = await Post.findById(req.params.id_post);
@@ -36,4 +48,5 @@ const addPostSubreddit = async (req, res) => {
     res.json(error.message);
   }
 };
-export { createPost, getAllPost, addPostSubreddit };
+
+export { createPost, getAllPost, addPostSubreddit, deletePost };

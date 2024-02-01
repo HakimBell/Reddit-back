@@ -92,7 +92,7 @@ module.exports =
 /*!*******************************************!*\
   !*** ./src/controllers/postController.js ***!
   \*******************************************/
-/*! exports provided: createPost, getAllPost, addPostSubreddit */
+/*! exports provided: createPost, getAllPost, addPostSubreddit, deletePost */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -100,6 +100,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createPost", function() { return createPost; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getAllPost", function() { return getAllPost; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addPostSubreddit", function() { return addPostSubreddit; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deletePost", function() { return deletePost; });
 /* harmony import */ var _models_postModel__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../models/postModel */ "./src/models/postModel.js");
 /* harmony import */ var _models_subRedditModel__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../models/subRedditModel */ "./src/models/subRedditModel.js");
 
@@ -130,6 +131,23 @@ const getAllPost = async (req, res) => {
     res.json(error.message);
   }
 };
+const deletePost = async (req, res) => {
+  try {
+    const deletePost = await _models_postModel__WEBPACK_IMPORTED_MODULE_0__["default"].findByIdAndDelete(req.params.id);
+    if (!deletePost) {
+      res.json({
+        message: "Post not found"
+      });
+    }
+    res.json({
+      message: "Post deleted"
+    });
+  } catch (error) {
+    res.json({
+      error: error.message
+    });
+  }
+};
 const addPostSubreddit = async (req, res) => {
   try {
     const newPost = await _models_postModel__WEBPACK_IMPORTED_MODULE_0__["default"].findById(req.params.id_post);
@@ -149,7 +167,7 @@ const addPostSubreddit = async (req, res) => {
 /*!************************************************!*\
   !*** ./src/controllers/subRedditController.js ***!
   \************************************************/
-/*! exports provided: createSubReddit, getAllSubReddits, getsubRedditById, deleteSubreddit */
+/*! exports provided: createSubReddit, getAllSubReddits, getsubRedditById, deleteSubreddit, deletePostSubreddit */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -158,7 +176,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getAllSubReddits", function() { return getAllSubReddits; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getsubRedditById", function() { return getsubRedditById; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deleteSubreddit", function() { return deleteSubreddit; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deletePostSubreddit", function() { return deletePostSubreddit; });
 /* harmony import */ var _models_subRedditModel__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../models/subRedditModel */ "./src/models/subRedditModel.js");
+/* harmony import */ var _models_postModel__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../models/postModel */ "./src/models/postModel.js");
+
 
 const createSubReddit = async (req, res) => {
   const {
@@ -222,6 +243,22 @@ const deleteSubreddit = async (req, res) => {
     res.json({
       error: error.message
     });
+  }
+};
+const deletePostSubreddit = async (req, res) => {
+  try {
+    const postId = req.params.id_post;
+    const subRedditId = req.params.id_subreddit;
+    const subReddit = await _models_subRedditModel__WEBPACK_IMPORTED_MODULE_0__["default"].findByIdAndUpdate(subRedditId, {
+      $pull: {
+        posts: postId
+      }
+    }, {
+      new: true
+    });
+    res.json(subReddit);
+  } catch (error) {
+    res.json(error.message);
   }
 };
 
@@ -349,7 +386,7 @@ const postSchema = new mongoose__WEBPACK_IMPORTED_MODULE_0__["Schema"]({
     required: true
   },
   content: String,
-  //   user: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  // user: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   comments: [{
     type: mongoose__WEBPACK_IMPORTED_MODULE_0__["mongoose"].Schema.Types.ObjectId,
     ref: "Comment"
@@ -442,6 +479,7 @@ const postRouter = __webpack_require__(/*! express */ "express").Router();
 postRouter.post("/submitpost", _controllers_postController__WEBPACK_IMPORTED_MODULE_0__["createPost"]);
 postRouter.post("/allPosts", _controllers_postController__WEBPACK_IMPORTED_MODULE_0__["getAllPost"]);
 postRouter.post("/:id_subreddit/addpostsubreddit/:id_post", _controllers_postController__WEBPACK_IMPORTED_MODULE_0__["addPostSubreddit"]);
+postRouter.delete("/deletePost/:id", _controllers_postController__WEBPACK_IMPORTED_MODULE_0__["deletePost"]);
 /* harmony default export */ __webpack_exports__["default"] = (postRouter);
 
 /***/ }),
@@ -462,6 +500,7 @@ subRedditRouter.post("/newSubReddit", _controllers_subRedditController__WEBPACK_
 subRedditRouter.get("/allSubReddits", _controllers_subRedditController__WEBPACK_IMPORTED_MODULE_0__["getAllSubReddits"]);
 subRedditRouter.get("/:id", _controllers_subRedditController__WEBPACK_IMPORTED_MODULE_0__["getsubRedditById"]);
 subRedditRouter.delete("/:id/clean", _controllers_subRedditController__WEBPACK_IMPORTED_MODULE_0__["deleteSubreddit"]);
+subRedditRouter.delete("/:id_subreddit/delete-post-subreddit/:id_post", _controllers_subRedditController__WEBPACK_IMPORTED_MODULE_0__["deletePostSubreddit"]);
 /* harmony default export */ __webpack_exports__["default"] = (subRedditRouter);
 
 /***/ }),

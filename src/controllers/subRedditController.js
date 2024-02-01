@@ -1,4 +1,5 @@
 import SubReddit from "../models/subRedditModel";
+import Post from "../models/postModel";
 
 const createSubReddit = async (req, res) => {
   const { title, description } = req.body;
@@ -45,4 +46,27 @@ const deleteSubreddit = async (req, res) => {
     res.json({ error: error.message });
   }
 };
-export { createSubReddit, getAllSubReddits, getsubRedditById, deleteSubreddit };
+
+const deletePostSubreddit = async (req, res) => {
+  try {
+    const postId = req.params.id_post;
+    const subRedditId = req.params.id_subreddit;
+
+    const subReddit = await SubReddit.findByIdAndUpdate(
+      subRedditId,
+      { $pull: { posts: postId } },
+      { new: true }
+    );
+
+    res.json(subReddit);
+  } catch (error) {
+    res.json(error.message);
+  }
+};
+export {
+  createSubReddit,
+  getAllSubReddits,
+  getsubRedditById,
+  deleteSubreddit,
+  deletePostSubreddit,
+};
