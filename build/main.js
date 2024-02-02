@@ -88,6 +88,66 @@ module.exports =
 /************************************************************************/
 /******/ ({
 
+/***/ "./src/controllers/commentController.js":
+/*!**********************************************!*\
+  !*** ./src/controllers/commentController.js ***!
+  \**********************************************/
+/*! exports provided: createComment */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createComment", function() { return createComment; });
+/* harmony import */ var _models_commentModel__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../models/commentModel */ "./src/models/commentModel.js");
+/* harmony import */ var _models_postModel__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../models/postModel */ "./src/models/postModel.js");
+
+
+const createComment = async (req, res) => {
+  try {
+    const {
+      content
+    } = req.body;
+    const postId = req.params.id_post;
+    // Vérifiez si postId est fourni dans la requête
+    if (!postId) {
+      return res.status(400).json({
+        error: "L'ID du post est requis pour créer un commentaire."
+      });
+    }
+
+    // Vérifiez si le post existe
+    const post = await _models_postModel__WEBPACK_IMPORTED_MODULE_1__["default"].findById(postId);
+    if (!post) {
+      return res.status(404).json({
+        error: "Le post associé n'a pas été trouvé."
+      });
+    }
+    const newComment = new _models_commentModel__WEBPACK_IMPORTED_MODULE_0__["default"]({
+      content,
+      post: post._id
+    });
+    await newComment.save();
+
+    // Ajoutez le commentaire au tableau de commentaires du post
+    post.comments.push(newComment._id);
+    await post.save();
+    res.json(newComment);
+
+    // const { content } = req.body;
+    // const newComment = new Comment({ content });
+    // await newComment.save();
+    // res.json(newComment);
+  } catch (error) {
+    console.error(error);
+    res.json({
+      error: message.error
+    });
+  }
+};
+
+
+/***/ }),
+
 /***/ "./src/controllers/postController.js":
 /*!*******************************************!*\
   !*** ./src/controllers/postController.js ***!
@@ -339,6 +399,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _routes_userRoutes__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./routes/userRoutes */ "./src/routes/userRoutes.js");
 /* harmony import */ var _routes_subRedditRoutes__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./routes/subRedditRoutes */ "./src/routes/subRedditRoutes.js");
 /* harmony import */ var _routes_postRoutes__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./routes/postRoutes */ "./src/routes/postRoutes.js");
+/* harmony import */ var _routes_commentRoutes__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./routes/commentRoutes */ "./src/routes/commentRoutes.js");
+
 
 
 
@@ -364,7 +426,33 @@ app.get("/", (req, res) => res.send("SALUT HAKIM DADDY MICHELIN"));
 app.use("/auth", _routes_userRoutes__WEBPACK_IMPORTED_MODULE_4__["default"]);
 app.use("/subreddit", _routes_subRedditRoutes__WEBPACK_IMPORTED_MODULE_5__["default"]);
 app.use("/post", _routes_postRoutes__WEBPACK_IMPORTED_MODULE_6__["default"]);
+app.use("/comment", _routes_commentRoutes__WEBPACK_IMPORTED_MODULE_7__["default"]);
 app.listen(port, () => console.log(`[SERVER] listening at http://localhost:${port}`));
+
+/***/ }),
+
+/***/ "./src/models/commentModel.js":
+/*!************************************!*\
+  !*** ./src/models/commentModel.js ***!
+  \************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mongoose */ "mongoose");
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_0__);
+
+const commentSchema = new mongoose__WEBPACK_IMPORTED_MODULE_0__["Schema"]({
+  content: String,
+  // author: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  post: {
+    type: mongoose__WEBPACK_IMPORTED_MODULE_0__["mongoose"].Schema.Types.ObjectId,
+    ref: "Post"
+  }
+});
+const Comment = mongoose__WEBPACK_IMPORTED_MODULE_0__["mongoose"].model("Comment", commentSchema);
+/* harmony default export */ __webpack_exports__["default"] = (Comment);
 
 /***/ }),
 
@@ -461,6 +549,23 @@ userSchema.methods.validPassword = async (applicantPassword, oldPassword) => {
 };
 const User = mongoose__WEBPACK_IMPORTED_MODULE_0___default.a.model("User", userSchema);
 /* harmony default export */ __webpack_exports__["default"] = (User);
+
+/***/ }),
+
+/***/ "./src/routes/commentRoutes.js":
+/*!*************************************!*\
+  !*** ./src/routes/commentRoutes.js ***!
+  \*************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _controllers_commentController__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../controllers/commentController */ "./src/controllers/commentController.js");
+
+const commentRouter = __webpack_require__(/*! express */ "express").Router();
+commentRouter.post("/:id_post/newcomment", _controllers_commentController__WEBPACK_IMPORTED_MODULE_0__["createComment"]);
+/* harmony default export */ __webpack_exports__["default"] = (commentRouter);
 
 /***/ }),
 

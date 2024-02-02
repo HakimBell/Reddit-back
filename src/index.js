@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import userRouter from "./routes/userRoutes";
 import subRedditRouter from "./routes/subRedditRoutes";
 import postRouter from "./routes/postRoutes";
+import commentRouter from "./routes/commentRoutes";
 
 const app = express();
 const port = process.env.PORT;
@@ -25,6 +26,7 @@ app.get("/", (req, res) => res.send("SALUT HAKIM DADDY MICHELIN"));
 app.use("/auth", userRouter);
 app.use("/subreddit", subRedditRouter);
 app.use("/post", postRouter);
+app.use("/comment", commentRouter);
 
 app.listen(port, () =>
   console.log(`[SERVER] listening at http://localhost:${port}`)
